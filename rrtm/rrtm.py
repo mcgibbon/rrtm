@@ -80,9 +80,9 @@ def get_broadening_volume_mixing_ratio_array(
         mean_air_temperature, interface_air_pressure, mean_air_pressure)
     wkl = species_volume_mixing_ratio_array
     if (wkl < 1.).all():
-        return_array = coldry * (1 - wkl[1:, :].sum(0))
+        return_array = coldry * (1 - wkl[:, 1:].sum(axis=1))
     elif (wkl > 1.).all():
-        return_array = coldry - wkl[1:, :].sum(0)
+        return_array = coldry - wkl[:, 1:].sum(axis=1)
     else:
         raise ValueError("WKL units issue detected.")
     return return_array
@@ -142,7 +142,7 @@ def run_lw_rrtm(
     if surface_temperature is None:
         surface_temperature = interface_air_temperature[0]
     for name, value in gas_volume_mixing_ratios.items():
-    gas_volume_mixing_ratios[name.lower()] = value
+        gas_volume_mixing_ratios[name.lower()] = value
 
     ireflect = {'lambertian': 0, 'specular': 1}[reflection.lower()]
     iscat = {'none': 0, 'disort': 1, 'yes': 2}[scattering.lower()]
@@ -225,14 +225,18 @@ def run_sw_rrtm(
         julian_day = 0.  # default understood by wrapped code
 
     ireflect = {'lambertian': 0, 'specular': 1}[reflection.lower()]
-    wkl, wbrodl = get_wkl_wbrodl(
-        mean_air_temperature, interface_air_pressure, mean_air_pressure,
-        gas_volume_mixing_ratios)
+    species_volume_mixing_ratio_array = get_species_volume_mixing_ratio_array(
+        gas_volume_mixing_ratios, len(mean_air_pressure))
+    broadening_volume_mixing_ratio_array = get_broadening_volume_mixing_ratio_array(
+        species_volume_mixing_ratio_array, mean_air_temperature, interface_air_pressure,
+        mean_air_pressure)
     try:
         return_values = librrtm_sw_wrapper.run_rrtm_sw(
             num_streams, julian_day, solar_zenith_angle, solar_scaling_factor, ireflect,
             surface_emissivity, mean_air_temperature, mean_air_pressure,
-            interface_air_temperature, interface_air_pressure, wkl, wbrodl)
+            interface_air_temperature, interface_air_pressure,
+            species_volume_mixing_ratio_array,
+            broadening_volume_mixing_ratio_array)
     except librrtm_sw_wrapper.LibRRTMSWError as e:
         raise RRTMError(e.data)
     return {
