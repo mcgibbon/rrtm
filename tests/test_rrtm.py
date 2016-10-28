@@ -4,6 +4,24 @@ import numpy as np
 import scipy.io.netcdf
 
 
+def get_gas_volume_mixing_ratios(nc):
+    """
+    Takes in a netcdf file containing gas density values in molecules/cm^2, and
+    converts them to volume mixing ratios."""
+    return_dict = {}
+    for species in ('h2o', 'co2', 'o3', 'n2o', 'co', 'ch4', 'o2'):
+        return_dict[species] = rrtm.chemistry.mmr_to_vmr(
+            species, rrtm.chemistry.column_density_to_mmr(
+                species,
+                nc.variables[species][:],
+                nc.variables['tavel'][:],
+                nc.variables['pz'][:],
+                nc.variables['pavel'][:],
+            )
+        )
+    return return_dict
+
+
 def get_test_data():
     nc = scipy.io.netcdf.netcdf_file('tests/tests_data.nc', 'r')
     input_data = {
@@ -11,15 +29,7 @@ def get_test_data():
         'mean_air_temperature': nc.variables['tavel'][:].copy(),
         'interface_air_pressure': nc.variables['pz'][:].copy(),
         'interface_air_temperature': nc.variables['tz'][:].copy(),
-        'gas_volume_mixing_ratios': {
-            'h2o': nc.variables['h2o'][:].copy(),
-            'co2': nc.variables['co2'][:].copy() ,
-            'o3': nc.variables['o3'][:].copy(),
-            'n2o': nc.variables['n2o'][:].copy(),
-            'co': nc.variables['co'][:].copy(),
-            'ch4': nc.variables['ch4'][:].copy(),
-            'o2': nc.variables['o2'][:].copy(),
-        }
+        'gas_volume_mixing_ratios': get_gas_volume_mixing_ratios(nc)
     }
     output_data = {
         'htr_' + name: nc.variables['htr_' + name][:].copy() for name in (
