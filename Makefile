@@ -19,7 +19,7 @@ LW_FSRCS = 	librrtm.f rtreg.f rtr.f rrtatm.f setcoef.f taumol.f rtregcld.f \
 LW_CSRCS =  librrtmsafe.c
 
 LW_BPATH = $(BPATH)/lw
-LW_SRC = lw
+LW_SRC = src/lw
 
 O_LW = ${LW_FSRCS:%.f=$(LW_BPATH)/%.o} ${LW_CSRCS:%.c=$(LW_BPATH)/%.o}
 
@@ -31,7 +31,7 @@ SW_FSRCS = librrtm_sw.f cldprop.f LINPAK.f setcoef.f disort.f taumoldis.f   \
 SW_CSRCS = librrtmsafe_sw.c
 
 SW_BPATH = $(BPATH)/sw
-SW_SRC = sw
+SW_SRC = src/sw
 
 O_SW = ${SW_FSRCS:%.f=$(SW_BPATH)/%.o} ${SW_CSRCS:%.c=$(SW_BPATH)/%.o}
 
@@ -56,7 +56,7 @@ PYMOD_SRCS = $(wildcard python/*.py)
 
 ## Python .so libraries
 
-LW_SO_BASE = librrtm_wrapper
+LW_SO_BASE = librrtm_lw_wrapper
 SW_SO_BASE = librrtm_sw_wrapper
 LW_SO = $(BPATH)/$(LW_SO_BASE).so
 SW_SO = $(BPATH)/$(SW_SO_BASE).so
@@ -83,7 +83,7 @@ test : $(PYMOD_BPATH)
 #	cp $(LW_OUTPUT) $(SW_OUTPUT) $(PYMOD_SRCS) version $(PYMOD_BPATH)/.
 #	echo "has_native = False" > $(PYMOD_BPATH)/has_native.py
 
-pymodule_native : $(LW_SO) $(SW_SO) $(PYMOD_SRCS) version
+pymodule_native : $(LW_BPATH) $(SW_BPATH) $(LW_SO) $(SW_SO) $(PYMOD_SRCS) version
 	rm -rf $(PYMOD_BPATH)
 	mkdir -p $(PYMOD_BPATH)
 	cp $(LW_SO) $(SW_SO) $(PYMOD_SRCS) version \
@@ -102,41 +102,41 @@ pymodule_install : $(PYMOD_BPATH)
 #$(SW_OUTPUT) : $(O_SW) $(O_SW_WRAPPER)
 #	  gcc $(LFLAGS) -o $(SW_OUTPUT) $^
 #
-#$(LW_BPATH) :
-#	mkdir -p $(LW_BPATH)
-#
-#$(LW_BPATH)/%.o : $(LW_SRC)/fort/%.f
-#	$(FC) -c $(FCFLAG)  $< -o $@
+$(LW_BPATH) :
+	mkdir -p $(LW_BPATH)
 
-#$(LW_BPATH)/%.o : $(LW_SRC)/%.c
-#	gcc -c $(CFLAGS) $< -o $@
-#
-#$(SW_BPATH) :
-#	mkdir -p $(SW_BPATH)
-#
-#$(SW_BPATH)/%.o : $(SW_SRC)/fort/%.f
-#	$(FC) -c $(FCFLAG)  $< -o $@
-#
-#$(SW_BPATH)/%.o : $(SW_SRC)/%.c
-#	gcc -c $(CFLAGS) $< -o $@
-#
+$(LW_BPATH)/%.o : $(LW_SRC)/fort/%.f
+	$(FC) -c $(FCFLAG)  $< -o $@
+
+$(LW_BPATH)/%.o : $(LW_SRC)/%.c
+	gcc -c $(CFLAGS) $< -o $@
+
+$(SW_BPATH) :
+	mkdir -p $(SW_BPATH)
+
+$(SW_BPATH)/%.o : $(SW_SRC)/fort/%.f
+	$(FC) -c $(FCFLAG)  $< -o $@
+
+$(SW_BPATH)/%.o : $(SW_SRC)/%.c
+	gcc -c $(CFLAGS) $< -o $@
+
 #$(WRAPPER_BPATH)/%.o : $(WRAPPER_SRC)/%.c
 #	gcc -c $(CFLAGS) $< -o $@
 
 ## Pure python interface:
 
-$(LW_SO) : $(LW_SO_O) $(LW_BPATH)/librrtm_wrapper.o
+$(LW_SO) : $(LW_SO_O) $(LW_BPATH)/librrtm_lw_wrapper.o
 	gcc -shared $(LFLAGS) $(PYX_CFLAGS) $^ -o $@
 
 $(SW_SO) : $(SW_SO_O) $(SW_BPATH)/librrtm_sw_wrapper.o
 	gcc -shared $(LFLAGS) $(PYX_CFLAGS) $^ -o $@
 
-$(LW_BPATH)/librrtm_wrapper.o : $(LW_SRC)/$(LW_SO_BASE).pyx
+$(LW_BPATH)/librrtm_lw_wrapper.o : $(LW_BPATH) $(LW_SRC)/$(LW_SO_BASE).pyx
 	cython $(LW_SRC)/$(LW_SO_BASE).pyx -o $(LW_BPATH)/$(LW_SO_BASE).c
 	gcc -c -I$(LW_SRC) $(CFLAGS) $(PYX_CFLAGS) \
 	    $(LW_BPATH)/$(LW_SO_BASE).c -o $@
 
-$(SW_BPATH)/librrtm_sw_wrapper.o : $(SW_SRC)/$(SW_SO_BASE).pyx
+$(SW_BPATH)/librrtm_sw_wrapper.o : $(SW_BPATH) $(SW_SRC)/$(SW_SO_BASE).pyx
 	cython $(SW_SRC)/$(SW_SO_BASE).pyx -o $(SW_BPATH)/$(SW_SO_BASE).c
 	gcc -c -I$(SW_SRC) $(CFLAGS) $(PYX_CFLAGS) \
 	     $(SW_BPATH)/$(SW_SO_BASE).c -o $@
