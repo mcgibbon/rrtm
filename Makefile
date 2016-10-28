@@ -1,8 +1,8 @@
 ## directories used.
 
 BPATH = build
-LW_OUTPUT = $(BPATH)/rrtm_nc
-SW_OUTPUT = $(BPATH)/rrtm_sw_nc
+#LW_OUTPUT = $(BPATH)/rrtm_nc
+#SW_OUTPUT = $(BPATH)/rrtm_sw_nc
 
 ## platform flags:
 FC = gfortran
@@ -39,14 +39,14 @@ O_SW = ${SW_FSRCS:%.f=$(SW_BPATH)/%.o} ${SW_CSRCS:%.c=$(SW_BPATH)/%.o}
 
 WRAPPER_SRC = wrapper
 WRAPPER_BPATH = $(BPATH)
-LW_WRAPPER_CSRCS = rrtm_netcdf.c common.c lw_wrapper.c
-SW_WRAPPER_CSRCS = rrtm_sw_netcdf.c common.c sw_wrapper.c
+#LW_WRAPPER_CSRCS = rrtm_netcdf.c common.c lw_wrapper.c
+#SW_WRAPPER_CSRCS = rrtm_sw_netcdf.c common.c sw_wrapper.c
 
 CFLAGS += 
-LFLAGS = -lnetcdf -lm -lgfortran
+LFLAGS = -lm -lgfortran
 
-O_SW_WRAPPER = ${SW_WRAPPER_CSRCS:%.c=$(WRAPPER_BPATH)/%.o}
-O_LW_WRAPPER = ${LW_WRAPPER_CSRCS:%.c=$(WRAPPER_BPATH)/%.o}
+#O_SW_WRAPPER = ${SW_WRAPPER_CSRCS:%.c=$(WRAPPER_BPATH)/%.o}
+#O_LW_WRAPPER = ${LW_WRAPPER_CSRCS:%.c=$(WRAPPER_BPATH)/%.o}
 
 ## Python module
 
@@ -77,16 +77,16 @@ clean :
 test : $(PYMOD_BPATH)
 	cd tests; python test_pyrrtm.py
 
-pymodule_netcdf : cli_netcdf $(PYMOD_SRCS) version
-	rm -rf $(PYMOD_BPATH)
-	mkdir -p $(PYMOD_BPATH)
-	cp $(LW_OUTPUT) $(SW_OUTPUT) $(PYMOD_SRCS) version $(PYMOD_BPATH)/.
-	echo "has_native = False" > $(PYMOD_BPATH)/has_native.py
+#pymodule_netcdf : cli_netcdf $(PYMOD_SRCS) version
+#	rm -rf $(PYMOD_BPATH)
+#	mkdir -p $(PYMOD_BPATH)
+#	cp $(LW_OUTPUT) $(SW_OUTPUT) $(PYMOD_SRCS) version $(PYMOD_BPATH)/.
+#	echo "has_native = False" > $(PYMOD_BPATH)/has_native.py
 
-pymodule_native : cli_netcdf $(LW_SO) $(SW_SO) $(PYMOD_SRCS) version
+pymodule_native : $(LW_SO) $(SW_SO) $(PYMOD_SRCS) version
 	rm -rf $(PYMOD_BPATH)
 	mkdir -p $(PYMOD_BPATH)
-	cp $(LW_OUTPUT) $(SW_OUTPUT) $(LW_SO) $(SW_SO) $(PYMOD_SRCS) version \
+	cp $(LW_SO) $(SW_SO) $(PYMOD_SRCS) version \
 	   $(PYMOD_BPATH)/.
 	echo "has_native = True" > $(PYMOD_BPATH)/has_native.py
 
@@ -95,33 +95,33 @@ pymodule_install : $(PYMOD_BPATH)
 	cp -rf $(PYMOD_BPATH) $(shell python -c "from distutils.sysconfig import get_python_lib; print(get_python_lib())")/$(PYMOD_NAME)
 
 ## Netcdf interface:
+#
+#$(LW_OUTPUT) : $(O_LW) $(O_LW_WRAPPER)
+#	  gcc $(LFLAGS) -o $(LW_OUTPUT) $^
+#
+#$(SW_OUTPUT) : $(O_SW) $(O_SW_WRAPPER)
+#	  gcc $(LFLAGS) -o $(SW_OUTPUT) $^
+#
+#$(LW_BPATH) :
+#	mkdir -p $(LW_BPATH)
+#
+#$(LW_BPATH)/%.o : $(LW_SRC)/fort/%.f
+#	$(FC) -c $(FCFLAG)  $< -o $@
 
-$(LW_OUTPUT) : $(O_LW) $(O_LW_WRAPPER)
-	  gcc $(LFLAGS) -o $(LW_OUTPUT) $^
-
-$(SW_OUTPUT) : $(O_SW) $(O_SW_WRAPPER)
-	  gcc $(LFLAGS) -o $(SW_OUTPUT) $^
-
-$(LW_BPATH) :
-	mkdir -p $(LW_BPATH)
-
-$(LW_BPATH)/%.o : $(LW_SRC)/fort/%.f
-	$(FC) -c $(FCFLAG)  $< -o $@
-
-$(LW_BPATH)/%.o : $(LW_SRC)/%.c
-	gcc -c $(CFLAGS) $< -o $@
-
-$(SW_BPATH) :
-	mkdir -p $(SW_BPATH)
-
-$(SW_BPATH)/%.o : $(SW_SRC)/fort/%.f
-	$(FC) -c $(FCFLAG)  $< -o $@
-
-$(SW_BPATH)/%.o : $(SW_SRC)/%.c
-	gcc -c $(CFLAGS) $< -o $@
-
-$(WRAPPER_BPATH)/%.o : $(WRAPPER_SRC)/%.c
-	gcc -c $(CFLAGS) $< -o $@
+#$(LW_BPATH)/%.o : $(LW_SRC)/%.c
+#	gcc -c $(CFLAGS) $< -o $@
+#
+#$(SW_BPATH) :
+#	mkdir -p $(SW_BPATH)
+#
+#$(SW_BPATH)/%.o : $(SW_SRC)/fort/%.f
+#	$(FC) -c $(FCFLAG)  $< -o $@
+#
+#$(SW_BPATH)/%.o : $(SW_SRC)/%.c
+#	gcc -c $(CFLAGS) $< -o $@
+#
+#$(WRAPPER_BPATH)/%.o : $(WRAPPER_SRC)/%.c
+#	gcc -c $(CFLAGS) $< -o $@
 
 ## Pure python interface:
 

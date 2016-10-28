@@ -13,7 +13,7 @@ import netcdf_interface
 if has_native:
     import native_interface
 
-_using_native = False # default is not to use it.
+_using_native = True # default is not to use it.
 
 def _make_toggle(funcname):
     netcdf = getattr(netcdf_interface, funcname)

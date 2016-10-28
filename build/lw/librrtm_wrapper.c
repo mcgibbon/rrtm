@@ -1284,7 +1284,7 @@ static char __pyx_k_Index_out_of_bounds_axis_d[] = "Index out of bounds (axis %d
 static char __pyx_k_Step_may_not_be_zero_axis_d[] = "Step may not be zero (axis %d)";
 static char __pyx_k_itemsize_0_for_cython_array[] = "itemsize <= 0 for cython.array";
 static char __pyx_k_unable_to_allocate_array_data[] = "unable to allocate array data.";
-static char __pyx_k_home_disk_eos4_mcgibbon_python[] = "/home/disk/eos4/mcgibbon/python/pyrrtm/lw/librrtm_wrapper.pyx";
+static char __pyx_k_home_disk_eos4_mcgibbon_python[] = "/home/disk/eos4/mcgibbon/python/rrtm/lw/librrtm_wrapper.pyx";
 static char __pyx_k_strided_and_direct_or_indirect[] = "<strided and direct or indirect>";
 static char __pyx_k_All_dimensions_preceding_dimensi[] = "All dimensions preceding dimension %d must be indexed and not sliced";
 static char __pyx_k_Buffer_view_does_not_expose_stri[] = "Buffer view does not expose strides";

@@ -3,6 +3,8 @@ import unittest
 import numpy
 import scipy.io.netcdf
 
+pyrrtm.use_native()
+
 class BaseTest(object):
     
     def setUp(self):
