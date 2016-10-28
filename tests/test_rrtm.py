@@ -52,7 +52,7 @@ def test_longwave():
         num_angles=2,
         num_streams=2,
         surface_emissivity=1.0,
-        surface_temperature=None,
+        surface_temperature=294.2,
     )
     assert np.allclose(model_output['longwave_heating_rate'], output_data['htr_lw'])
 
@@ -70,7 +70,7 @@ def test_longwave_disort():
         num_angles=2,
         num_streams=2,
         surface_emissivity=1.0,
-        surface_temperature=None,
+        surface_temperature=294.2,
     )
     assert np.allclose(model_output['longwave_heating_rate'], output_data['htr_lw_disort'])
 
