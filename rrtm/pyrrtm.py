@@ -51,6 +51,27 @@ class RRTMError(Exception):
     pass
 
 
+def get_wkl_wbrodl(
+        mean_air_temperature, interface_air_pressure, mean_air_pressure,
+        volume_mixing_ratios):
+    # would be nice to determine what wkl and wbrodl actually are, to put in documentation
+    # also unclear what the axes of wkl need to be.
+    gas_names = ('H2O', 'CO2', 'O3', 'N2O', 'CO', 'CH4', 'O2')
+    wkl = np.zeros(len(gas_names), len(mean_air_temperature))
+    for i, name in enumerate(gas_names):
+        if name in volume_mixing_ratios:
+            wkl[i, :] = volume_mixing_ratios[name]
+    coldry = chemistry.column_density_rrtm(
+        mean_air_temperature, interface_air_pressure, mean_air_pressure)
+    if (wkl < 1.).all():
+        wbrodl = coldry * (1 - wkl[1:, :].sum(0))
+    elif (wkl > 1.).all():
+        wbrodl = coldry - wkl[1:, :].sum(0)
+    else:
+        raise ValueError("WKL units issue detected.")
+    return wkl.T, wbrodl
+
+
 def run_lw_rrtm(
         interface_air_temperature, interface_air_pressure, gas_volume_mixing_ratios,
         mean_air_temperature=None,
@@ -105,19 +126,15 @@ def run_lw_rrtm(
 
     ireflect = {'lambertian': 0, 'specular': 1}[reflection.lower()]
     iscat = {'none': 0, 'disort': 1, 'yes': 2}[scattering.lower()]
+    numangs = {'none': num_angles, 'disort': num_streams, 'yes': num_streams}[scattering.lower()]
+    wkl, wbrodl = get_wkl_wbrodl(
+        mean_air_temperature, interface_air_pressure, mean_air_pressure,
+        gas_volume_mixing_ratios)
 
-    gas_names = ('H2O', 'CO2', 'O3', 'N2O', 'CO', 'CH4', 'O2')
-    wkl = np.zeros(len(gas_names), len(interface_air_temperature))
-    for i, name in enumerate(gas_names):
-        if name in gas_volume_mixing_ratios:
-            wkl[i, :] = gas_volume_mixing_ratios[name]
-
-    args['wkl'] = args['wkl'].T
-    args = [args[k] for k in ['iscat', 'numangs', 
-                              'tbound', 'ireflect', 'semis',
-                              'tavel', 'pavel', 'tz', 'pz', 'wkl', 'wbrodl']]
     try:
-        return_values = librrtm_lw_wrapper.run_rrtm(*args)
+        return_values = librrtm_lw_wrapper.run_rrtm(
+            iscat, numangs, surface_temperature, ireflect, surface_emissivity, mean_air_temperature,
+            mean_air_pressure, interface_air_temperature, interface_air_pressure, wkl, wbrodl)
     except librrtm_lw_wrapper.LibRRTMError as e:
         raise RRTMError(e.data)
     return {
