@@ -1,0 +1,185 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Installation &mdash; pyrrtm 0.2.1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.2.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="pyrrtm 0.2.1 documentation" href="index.html" />
+    <link rel="next" title="Longwave Radiation (LW)" href="lw.html" />
+    <link rel="prev" title="Welcome to pyrrtm’s documentation!" href="index.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="lw.html" title="Longwave Radiation (LW)"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Welcome to pyrrtm’s documentation!"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">pyrrtm 0.2.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="installation">
+<h1>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h1>
+<p>There are two options for installation given below. Try to install the
+<a class="reference internal" href="#install-native"><span>Full installation of pyrrtm</span></a> first. If you run into difficulties, try
+installing the <a class="reference internal" href="#install-netcdfonly"><span>pyrrtm with NetCDF only</span></a> instead (has exactly the same
+functionality but with some performance overhead). See <a class="reference internal" href="native.html"><em>Native Interface to the RRTM Code</em></a>
+for details on the differences between the two installations.</p>
+<div class="section" id="full-installation-of-pyrrtm">
+<span id="install-native"></span><h2>Full installation of pyrrtm<a class="headerlink" href="#full-installation-of-pyrrtm" title="Permalink to this headline">¶</a></h2>
+<p>Requires:</p>
+<ul class="simple">
+<li>gfortran and gcc</li>
+<li>libgfortran</li>
+<li>netcdf and netcdf-devel</li>
+<li>python, scipy and numpy</li>
+<li>cython</li>
+</ul>
+<p>To download and compile:</p>
+<div class="highlight-python"><div class="highlight"><pre>$ git clone https://github.com/tomflannaghan/pyrrtm.git
+$ cd pyrrtm
+$ make pymodule_native
+</pre></div>
+</div>
+<p>To test:</p>
+<div class="highlight-python"><div class="highlight"><pre>$ make test
+</pre></div>
+</div>
+<p>To install:</p>
+<div class="highlight-python"><div class="highlight"><pre>$ make pymodule_install
+</pre></div>
+</div>
+<p>This may require <code class="docutils literal"><span class="pre">sudo</span></code> or root privileges.</p>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">I have had some issues with old compilers. Best results come from
+recent versions of <code class="docutils literal"><span class="pre">gfortran</span></code>. Always test this build with <code class="docutils literal"><span class="pre">make</span>
+<span class="pre">test</span></code>. If the tests fail, install <a class="reference internal" href="#install-netcdfonly"><span>pyrrtm with NetCDF only</span></a>
+instead.</p>
+</div>
+</div>
+<div class="section" id="pyrrtm-with-netcdf-only">
+<span id="install-netcdfonly"></span><h2>pyrrtm with NetCDF only<a class="headerlink" href="#pyrrtm-with-netcdf-only" title="Permalink to this headline">¶</a></h2>
+<p>Requires:</p>
+<ul class="simple">
+<li>gfortran and gcc</li>
+<li>libgfortran</li>
+<li>netcdf and netcdf-devel</li>
+<li>python, scipy and numpy</li>
+</ul>
+<p>To download and compile:</p>
+<div class="highlight-python"><div class="highlight"><pre>$ git clone https://github.com/tomflannaghan/pyrrtm.git
+$ cd pyrrtm
+$ make pymodule_netcdf
+</pre></div>
+</div>
+<p>To test:</p>
+<div class="highlight-python"><div class="highlight"><pre>$ make test
+</pre></div>
+</div>
+<p>To install:</p>
+<div class="highlight-python"><div class="highlight"><pre>$ make pymodule_install
+</pre></div>
+</div>
+<p>This may require <code class="docutils literal"><span class="pre">sudo</span></code> or root privileges.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Installation</a><ul>
+<li><a class="reference internal" href="#full-installation-of-pyrrtm">Full installation of pyrrtm</a></li>
+<li><a class="reference internal" href="#pyrrtm-with-netcdf-only">pyrrtm with NetCDF only</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="index.html"
+                        title="previous chapter">Welcome to pyrrtm&#8217;s documentation!</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="lw.html"
+                        title="next chapter">Longwave Radiation (<code class="docutils literal"><span class="pre">LW</span></code>)</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/installation.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="lw.html" title="Longwave Radiation (LW)"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Welcome to pyrrtm’s documentation!"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">pyrrtm 0.2.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2014, Tom Flannaghan.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+    </div>
+  </body>
+</html>

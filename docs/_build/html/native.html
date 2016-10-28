@@ -1,0 +1,131 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Native Interface to the RRTM Code &mdash; pyrrtm 0.2.1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.2.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="pyrrtm 0.2.1 documentation" href="index.html" />
+    <link rel="prev" title="Shortwave Radiation (SW)" href="sw.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="sw.html" title="Shortwave Radiation (SW)"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">pyrrtm 0.2.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="native-interface-to-the-rrtm-code">
+<h1>Native Interface to the RRTM Code<a class="headerlink" href="#native-interface-to-the-rrtm-code" title="Permalink to this headline">¶</a></h1>
+<p>By default, pyrrtm uses intermediate NetCDF files to communicate with
+the RRTM binaries. This is a very reliable method, but has an overhead
+associated with writing the data to disk, calling RRTM, and finally
+reading the output from disk.</p>
+<p>If you installed the <a class="reference internal" href="installation.html#install-native"><span>Full installation of pyrrtm</span></a> version of pyrrtm, you have
+access to a much faster native interface to RRTM, meaning that RRTM is
+loaded as a shared object by the python interpreter. Practically
+speaking, this should increase the performance of the longwave code by
+<strong>5 to 10 times</strong>. The shortwave code performance is not so
+dramatically affected as the code itself takes much longer to run than
+the overhead. A big disadvantage of the native interface is that
+errors thrown by RRTM are not handled at all and will often kill the
+python interpreter. As such, the native interface is always disabled
+by default but can be activated using <a class="reference internal" href="#use_native" title="use_native"><code class="xref py py-func docutils literal"><span class="pre">use_native()</span></code></a>.</p>
+<dl class="function">
+<dt id="use_native">
+<code class="descname">use_native</code><span class="sig-paren">(</span><em>state=True</em><span class="sig-paren">)</span><a class="headerlink" href="#use_native" title="Permalink to this definition">¶</a></dt>
+<dd><p>Activates and deactivates the native binary interface. <cite>state</cite> is a
+boolean value that sets the state of the native binary interface.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="has_native">
+<code class="descname">has_native</code><a class="headerlink" href="#has_native" title="Permalink to this definition">¶</a></dt>
+<dd><p>Indicates whether pyrrtm has been compiled with support for the
+native interface.</p>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="sw.html"
+                        title="previous chapter">Shortwave Radiation (<code class="docutils literal"><span class="pre">SW</span></code>)</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/native.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="sw.html" title="Shortwave Radiation (SW)"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">pyrrtm 0.2.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2014, Tom Flannaghan.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+    </div>
+  </body>
+</html>

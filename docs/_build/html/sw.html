@@ -1,0 +1,389 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Shortwave Radiation (SW) &mdash; pyrrtm 0.2.1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.2.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="pyrrtm 0.2.1 documentation" href="index.html" />
+    <link rel="next" title="Native Interface to the RRTM Code" href="native.html" />
+    <link rel="prev" title="Longwave Radiation (LW)" href="lw.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="native.html" title="Native Interface to the RRTM Code"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="lw.html" title="Longwave Radiation (LW)"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">pyrrtm 0.2.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="shortwave-radiation-sw">
+<h1>Shortwave Radiation (<code class="docutils literal"><span class="pre">SW</span></code>)<a class="headerlink" href="#shortwave-radiation-sw" title="Permalink to this headline">¶</a></h1>
+<p>The shortwave radiation component of RRTM (<code class="docutils literal"><span class="pre">rrtm_sw</span></code>) is supported
+with the following restrictions:</p>
+<ul class="simple">
+<li>Specified temperature and pressure profiles, so <code class="docutils literal"><span class="pre">IATM</span> <span class="pre">=</span> <span class="pre">0</span></code></li>
+<li>No clouds, so <code class="docutils literal"><span class="pre">ICLD</span> <span class="pre">=</span> <span class="pre">0</span></code></li>
+<li>No aerosols, so <code class="docutils literal"><span class="pre">IAER</span> <span class="pre">=</span> <span class="pre">0</span></code></li>
+<li>Output fluxes only for 10-3250 cm-1, so <code class="docutils literal"><span class="pre">IOUT</span> <span class="pre">=</span> <span class="pre">0</span></code></li>
+</ul>
+<p>These restrictions could probably be lifted relatively easily so
+please contact me if you are interested in helping to support these
+features. As I do not require these features so am not planning
+on implementing them myself.</p>
+<p>The shortwave radiation code is accessed using the <code class="docutils literal"><span class="pre">SW</span></code> class. The
+example below (see <a class="reference internal" href="#sw-example"><span>Example</span></a>) shows a simple usage of the
+radiation code. The full documentation for the <code class="docutils literal"><span class="pre">SW</span></code> class is given
+in <a class="reference internal" href="#sw-doc"><span>The SW Class</span></a>.</p>
+<div class="section" id="example">
+<span id="sw-example"></span><h2>Example<a class="headerlink" href="#example" title="Permalink to this headline">¶</a></h2>
+<p>We assume that <code class="docutils literal"><span class="pre">T</span></code>, <code class="docutils literal"><span class="pre">p</span></code>, <code class="docutils literal"><span class="pre">H2O</span></code> and <code class="docutils literal"><span class="pre">O3</span></code> are numpy arrays of equal
+length. The surface temperature is set as equal to <code class="docutils literal"><span class="pre">T[0]</span></code>. Shortwave
+radiative transfer is then performed as follows:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">sw</span> <span class="o">=</span> <span class="n">pyrrtm</span><span class="o">.</span><span class="n">SW</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">T</span><span class="p">))</span>
+<span class="n">sw</span><span class="o">.</span><span class="n">tavel</span> <span class="o">=</span> <span class="n">T</span>
+<span class="n">sw</span><span class="o">.</span><span class="n">pavel</span> <span class="o">=</span> <span class="n">p</span>
+<span class="n">sw</span><span class="o">.</span><span class="n">set_species</span><span class="p">(</span><span class="s">&#39;H2O&#39;</span><span class="p">,</span> <span class="n">H2O</span><span class="p">,</span> <span class="s">&#39;mmr&#39;</span><span class="p">)</span>
+<span class="n">sw</span><span class="o">.</span><span class="n">set_species</span><span class="p">(</span><span class="s">&#39;co2&#39;</span><span class="p">,</span> <span class="mf">0.000358</span><span class="p">,</span> <span class="s">&#39;vmr&#39;</span><span class="p">)</span>
+<span class="n">sw</span><span class="o">.</span><span class="n">set_species</span><span class="p">(</span><span class="s">&#39;o3&#39;</span><span class="p">,</span> <span class="n">O3</span><span class="p">,</span> <span class="s">&#39;vmr&#39;</span><span class="p">)</span>
+<span class="n">output</span> <span class="o">=</span> <span class="n">sw</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>The <code class="docutils literal"><span class="pre">output</span></code> object has the following members:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">output</span><span class="o">.</span><span class="n">totuflux</span>   <span class="c"># Upward flux through each level (W/m2)</span>
+<span class="n">output</span><span class="o">.</span><span class="n">totdflux</span>   <span class="c"># Downward flux through each level (W/m2)</span>
+<span class="n">output</span><span class="o">.</span><span class="n">fnet</span>       <span class="c"># Net flux through each level (W/m2)</span>
+<span class="n">output</span><span class="o">.</span><span class="n">htr</span>        <span class="c"># Heating rate for each layer (K/day)</span>
+</pre></div>
+</div>
+<p>Each member is a numpy array.</p>
+</div>
+<div class="section" id="the-sw-class">
+<span id="sw-doc"></span><h2>The <code class="docutils literal"><span class="pre">SW</span></code> Class<a class="headerlink" href="#the-sw-class" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="SW">
+<em class="property">class </em><code class="descname">SW</code><span class="sig-paren">(</span><em>nlayers</em><span class="sig-paren">)</span><a class="headerlink" href="#SW" title="Permalink to this definition">¶</a></dt>
+<dd><p>Performs the shortwave radiative transfer calculations. The
+attributes and methods for <code class="docutils literal"><span class="pre">SW</span></code> are very similar to those for
+<a class="reference internal" href="lw.html#LW" title="LW"><code class="xref py py-class docutils literal"><span class="pre">LW</span></code></a>, the longwave radiation class.</p>
+</dd></dl>
+
+<div class="section" id="the-profile-of-temperature-and-pressure">
+<span id="sw-profile"></span><h3>The Profile of Temperature and Pressure<a class="headerlink" href="#the-profile-of-temperature-and-pressure" title="Permalink to this headline">¶</a></h3>
+<dl class="attribute">
+<dt id="SW.tavel">
+<code class="descclassname">SW.</code><code class="descname">tavel</code><a class="headerlink" href="#SW.tavel" title="Permalink to this definition">¶</a></dt>
+<dd><p>The average temperature of each layer. The layers are specified in
+ascending order.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Units:</th><td class="field-body">Kelvin</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Shape:</th><td class="field-body"><code class="docutils literal"><span class="pre">(nlayers,</span> <span class="pre">)</span></code></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="SW.pavel">
+<code class="descclassname">SW.</code><code class="descname">pavel</code><a class="headerlink" href="#SW.pavel" title="Permalink to this definition">¶</a></dt>
+<dd><p>The average pressure of each layer. The layers are specified in
+ascending order, so <code class="docutils literal"><span class="pre">pavel[i]</span> <span class="pre">&gt;</span> <span class="pre">pavel[i+1]</span></code>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Units:</th><td class="field-body">hPa</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Shape:</th><td class="field-body"><code class="docutils literal"><span class="pre">(nlayers,</span> <span class="pre">)</span></code></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="SW.tz">
+<code class="descclassname">SW.</code><code class="descname">tz</code><a class="headerlink" href="#SW.tz" title="Permalink to this definition">¶</a></dt>
+<dd><p>The temperature at each level. Levels are specified in ascending order.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Units:</th><td class="field-body">Kelvin</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Shape:</th><td class="field-body"><code class="docutils literal"><span class="pre">(nlayers+1,</span> <span class="pre">)</span></code></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="SW.pz">
+<code class="descclassname">SW.</code><code class="descname">pz</code><a class="headerlink" href="#SW.pz" title="Permalink to this definition">¶</a></dt>
+<dd><p>The pressure at each level. The levels are specified in ascending order.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Units:</th><td class="field-body">hPa</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Shape:</th><td class="field-body"><code class="docutils literal"><span class="pre">(nlayers+1,</span> <span class="pre">)</span></code></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>RRTM requires both layer average and level data for pressure and
+temperature.</p>
+<p>Given the level data <a class="reference internal" href="#SW.pz" title="SW.pz"><code class="xref py py-attr docutils literal"><span class="pre">SW.pz</span></code></a> and <a class="reference internal" href="#SW.tz" title="SW.tz"><code class="xref py py-attr docutils literal"><span class="pre">SW.tz</span></code></a>, the layer
+average data <a class="reference internal" href="#SW.pavel" title="SW.pavel"><code class="xref py py-attr docutils literal"><span class="pre">SW.pavel</span></code></a> and <a class="reference internal" href="#SW.tavel" title="SW.tavel"><code class="xref py py-attr docutils literal"><span class="pre">SW.tavel</span></code></a> can be
+reconstructed assuming linear interpolation of temperature between
+levels. Therefore, if <a class="reference internal" href="#SW.pz" title="SW.pz"><code class="xref py py-attr docutils literal"><span class="pre">SW.pz</span></code></a> and <a class="reference internal" href="#SW.tz" title="SW.tz"><code class="xref py py-attr docutils literal"><span class="pre">SW.tz</span></code></a> are
+specified, <a class="reference internal" href="#SW.pavel" title="SW.pavel"><code class="xref py py-attr docutils literal"><span class="pre">SW.pavel</span></code></a> and <a class="reference internal" href="#SW.tavel" title="SW.tavel"><code class="xref py py-attr docutils literal"><span class="pre">SW.tavel</span></code></a> are not required
+and will be calculated automatically.</p>
+<p class="last">Similarly, given <a class="reference internal" href="#SW.pavel" title="SW.pavel"><code class="xref py py-attr docutils literal"><span class="pre">SW.pavel</span></code></a> and <a class="reference internal" href="#SW.tavel" title="SW.tavel"><code class="xref py py-attr docutils literal"><span class="pre">SW.tavel</span></code></a>, values for
+<a class="reference internal" href="#SW.pz" title="SW.pz"><code class="xref py py-attr docutils literal"><span class="pre">SW.pz</span></code></a> and <a class="reference internal" href="#SW.tz" title="SW.tz"><code class="xref py py-attr docutils literal"><span class="pre">SW.tz</span></code></a> can be reconstructed. However, this
+is not a well posed problem, and so the method used is heuristic,
+and looks for smooth profiles that are consistent with the layer
+average data. In these circumstances, the resulting profiles for
+<a class="reference internal" href="#SW.pz" title="SW.pz"><code class="xref py py-attr docutils literal"><span class="pre">SW.pz</span></code></a> and <a class="reference internal" href="#SW.tz" title="SW.tz"><code class="xref py py-attr docutils literal"><span class="pre">SW.tz</span></code></a> should be good enough for most
+purposes, but you should check that they are satisfactory before
+using them.</p>
+</div>
+</div>
+<div class="section" id="surface">
+<span id="sw-surface"></span><h3>Surface<a class="headerlink" href="#surface" title="Permalink to this headline">¶</a></h3>
+<dl class="attribute">
+<dt id="SW.semis">
+<code class="descclassname">SW.</code><code class="descname">semis</code><a class="headerlink" href="#SW.semis" title="Permalink to this definition">¶</a></dt>
+<dd><p>Surface emissivity, between 0 and 1. Note that here reflectance is
+defined as 1 - emissivity, and so <code class="docutils literal"><span class="pre">albedo</span> <span class="pre">=</span> <span class="pre">1</span> <span class="pre">-</span> <span class="pre">semis</span></code> (see
+<code class="docutils literal"><span class="pre">rrtm_sw_instructions</span></code>). Default is 1.0.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="chemical-composition">
+<span id="sw-chemical"></span><h3>Chemical Composition<a class="headerlink" href="#chemical-composition" title="Permalink to this headline">¶</a></h3>
+<dl class="method">
+<dt id="SW.get_species">
+<code class="descclassname">SW.</code><code class="descname">get_species</code><span class="sig-paren">(</span><em>species</em>, <em>unit='vmr'</em><span class="sig-paren">)</span><a class="headerlink" href="#SW.get_species" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets a profile of the concentration of one of the chemical
+species.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>species</strong> &#8211; String, one of &#8216;H2O&#8217;, &#8216;CO2&#8217;, &#8216;O3&#8217;, &#8216;N2O&#8217;, &#8216;CO&#8217;,
+&#8216;CH4&#8217;, &#8216;O2&#8217; (case insensitive).</li>
+<li><strong>unit</strong> &#8211; One of &#8216;vmr&#8217;, &#8216;mmr&#8217;, &#8216;molecules/cm2&#8217;. Specifies the
+unit of <code class="docutils literal"><span class="pre">value</span></code>.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Array of shape <code class="docutils literal"><span class="pre">(nlayers,)</span></code></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="SW.set_species">
+<code class="descclassname">SW.</code><code class="descname">set_species</code><span class="sig-paren">(</span><em>species</em>, <em>value</em>, <em>unit='vmr'</em><span class="sig-paren">)</span><a class="headerlink" href="#SW.set_species" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets a profile of one of the chemical species.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>species</strong> &#8211; String, one of &#8216;H2O&#8217;, &#8216;CO2&#8217;, &#8216;O3&#8217;, &#8216;N2O&#8217;, &#8216;CO&#8217;,
+&#8216;CH4&#8217;, &#8216;O2&#8217; (case insensitive).</li>
+<li><strong>value</strong> &#8211; (Array of shape <code class="docutils literal"><span class="pre">(nlayers,)</span></code> or float). Specifies
+the concentration of the gas in each layer. If a
+float, the concentration is constant for all layers.</li>
+<li><strong>unit</strong> &#8211; One of &#8216;vmr&#8217;, &#8216;mmr&#8217;, &#8216;molecules/cm2&#8217;. Specifies the
+unit of <code class="docutils literal"><span class="pre">value</span></code>.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="solar-forcing-parameters">
+<span id="sw-solar"></span><h3>Solar Forcing Parameters<a class="headerlink" href="#solar-forcing-parameters" title="Permalink to this headline">¶</a></h3>
+<dl class="attribute">
+<dt id="SW.juldat">
+<code class="descclassname">SW.</code><code class="descname">juldat</code><a class="headerlink" href="#SW.juldat" title="Permalink to this definition">¶</a></dt>
+<dd><p>Julian day of the year, from 1 to 365. This is only used to
+calculate the Earth-Sun distance. 0 means that the code does not
+take into account the day and uses an average Earth-Sun
+distance. Default is 0.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="SW.solvar">
+<code class="descclassname">SW.</code><code class="descname">solvar</code><a class="headerlink" href="#SW.solvar" title="Permalink to this definition">¶</a></dt>
+<dd><p>Rescales the solar source.  Default is 1.0 (no rescaling).</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="SW.sza">
+<code class="descclassname">SW.</code><code class="descname">sza</code><a class="headerlink" href="#SW.sza" title="Permalink to this definition">¶</a></dt>
+<dd><p>Solar zenith angle (degrees). Default is 0 degrees (overhead).</p>
+</dd></dl>
+
+</div>
+<div class="section" id="running-the-model">
+<span id="sw-run"></span><h3>Running the Model<a class="headerlink" href="#running-the-model" title="Permalink to this headline">¶</a></h3>
+<dl class="method">
+<dt id="SW.run">
+<code class="descclassname">SW.</code><code class="descname">run</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#SW.run" title="Permalink to this definition">¶</a></dt>
+<dd><p>Performs the radiative transfer using RRTM.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">An instance of the <a class="reference internal" href="lw.html#Output" title="Output"><code class="xref py py-class docutils literal"><span class="pre">Output</span></code></a> class.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body">On an error in the RRTM code, raises an instance of <code class="xref py py-class docutils literal"><span class="pre">RRTMError</span></code>.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="advanced-arguments">
+<span id="sw-adv-args"></span><h3>Advanced arguments<a class="headerlink" href="#advanced-arguments" title="Permalink to this headline">¶</a></h3>
+<dl class="attribute">
+<dt id="SW.ireflect">
+<code class="descclassname">SW.</code><code class="descname">ireflect</code><a class="headerlink" href="#SW.ireflect" title="Permalink to this definition">¶</a></dt>
+<dd><p>0 for Lambertian reflection (default).  1 for specular reflection,
+where angle is equal to downwelling angle.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="SW.nstr">
+<code class="descclassname">SW.</code><code class="descname">nstr</code><a class="headerlink" href="#SW.nstr" title="Permalink to this definition">¶</a></dt>
+<dd><p>Controls the number of streams used by the DISORT code. Options are
+0, 1 and 2 (corresponding to 4, 8 and 16 streams).</p>
+</dd></dl>
+
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Shortwave Radiation (<code class="docutils literal"><span class="pre">SW</span></code>)</a><ul>
+<li><a class="reference internal" href="#example">Example</a></li>
+<li><a class="reference internal" href="#the-sw-class">The <code class="docutils literal"><span class="pre">SW</span></code> Class</a><ul>
+<li><a class="reference internal" href="#the-profile-of-temperature-and-pressure">The Profile of Temperature and Pressure</a></li>
+<li><a class="reference internal" href="#surface">Surface</a></li>
+<li><a class="reference internal" href="#chemical-composition">Chemical Composition</a></li>
+<li><a class="reference internal" href="#solar-forcing-parameters">Solar Forcing Parameters</a></li>
+<li><a class="reference internal" href="#running-the-model">Running the Model</a></li>
+<li><a class="reference internal" href="#advanced-arguments">Advanced arguments</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="lw.html"
+                        title="previous chapter">Longwave Radiation (<code class="docutils literal"><span class="pre">LW</span></code>)</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="native.html"
+                        title="next chapter">Native Interface to the RRTM Code</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/sw.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="native.html" title="Native Interface to the RRTM Code"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="lw.html" title="Longwave Radiation (LW)"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">pyrrtm 0.2.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2014, Tom Flannaghan.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+    </div>
+  </body>
+</html>
