@@ -56,7 +56,7 @@ def get_wkl_wbrodl(
         volume_mixing_ratios):
     # would be nice to determine what wkl and wbrodl actually are, to put in documentation
     # also unclear what the axes of wkl need to be.
-    gas_names = ('H2O', 'CO2', 'O3', 'N2O', 'CO', 'CH4', 'O2')
+    gas_names = ('h2o', 'co2', 'o3', 'n2o', 'co', 'ch4', 'o2')
     wkl = np.zeros((len(gas_names), len(mean_air_temperature)))
     for i, name in enumerate(gas_names):
         if name in volume_mixing_ratios:
@@ -125,6 +125,8 @@ def run_lw_rrtm(
         mean_air_pressure = mean_air_pressure_from_interfaces(interface_air_pressure)
     if surface_temperature is None:
         surface_temperature = interface_air_temperature[0]
+    for name, value in gas_volume_mixing_ratios.items():
+	gas_volume_mixing_ratios[name.lower()] = value
 
     ireflect = {'lambertian': 0, 'specular': 1}[reflection.lower()]
     iscat = {'none': 0, 'disort': 1, 'yes': 2}[scattering.lower()]
@@ -206,6 +208,7 @@ def run_sw_rrtm(
     wkl, wbrodl = get_wkl_wbrodl(
         mean_air_temperature, interface_air_pressure, mean_air_pressure,
         gas_volume_mixing_ratios)
+    print(wkl, wbrodl)
     try:
         return_values = librrtm_sw_wrapper.run_rrtm_sw(
             num_streams, julian_day, solar_zenith_angle, solar_scaling_factor, ireflect,

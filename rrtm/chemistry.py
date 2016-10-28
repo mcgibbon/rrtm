@@ -4,7 +4,7 @@ molar_mass_air = 28.97
 R = 8.3144621
 R_air = 1000 * R / molar_mass_air
 avogadro = 6.02214129e23
-g = 9.81
+g = 9.8
 
 def column_density_rrtm(mean_air_temperature, interface_air_pressure, mean_air_pressure):
     """Odd column density quantity for RRTM. Pressures are given in
