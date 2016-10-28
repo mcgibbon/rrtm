@@ -208,7 +208,6 @@ def run_sw_rrtm(
     wkl, wbrodl = get_wkl_wbrodl(
         mean_air_temperature, interface_air_pressure, mean_air_pressure,
         gas_volume_mixing_ratios)
-    print(wkl, wbrodl)
     try:
         return_values = librrtm_sw_wrapper.run_rrtm_sw(
             num_streams, julian_day, solar_zenith_angle, solar_scaling_factor, ireflect,

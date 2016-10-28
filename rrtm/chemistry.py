@@ -6,6 +6,7 @@ R_air = 1000 * R / molar_mass_air
 avogadro = 6.02214129e23
 g = 9.8
 
+
 def column_density_rrtm(mean_air_temperature, interface_air_pressure, mean_air_pressure):
     """Odd column density quantity for RRTM. Pressures are given in
     hPa, and temperature is given in Kelvin. Accepts 1d arrays."""
@@ -22,18 +23,22 @@ def column_density_rrtm(mean_air_temperature, interface_air_pressure, mean_air_p
         (g * mean_air_pressure))
     return 100 * molecules_cm3 * dz
 
+
 def mmr_to_column_density(species, mmr, tavel, pz, pavel):
     """Returns the column density (suitable for use in RRTM)."""
     return column_density_rrtm(tavel, pz, pavel) *\
         mmr * molar_mass['dry air'] / molar_mass[species.upper()]
+
 
 def column_density_to_mmr(species, col, tavel, pz, pavel):
     """Returns the mass mixing ratio."""
     return col / column_density_rrtm(tavel, pz, pavel) *\
         molar_mass[species.upper()] / molar_mass['dry air']
 
+
 def mmr_to_vmr(gas, val):
     return val * molar_mass['dry air'] / molar_mass[gas.upper()]
+
 
 def vmr_to_mmr(gas, val):
     return val * molar_mass[gas.upper()] / molar_mass['dry air']
