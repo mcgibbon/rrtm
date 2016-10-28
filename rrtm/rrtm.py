@@ -116,7 +116,7 @@ def run_lw_rrtm(
             to interface_air_temperature[0].
 
     Returns:
-
+        output (dict): A dictionary containing longwave radiative fluxes and heating rate.
     """
     if mean_air_temperature is None:
         mean_air_temperature = mean_air_temperature_from_interfaces(
@@ -144,21 +144,76 @@ def run_lw_rrtm(
         'longwave_heating_rate': return_values[3]}
 
 
-def run_sw_rrtm(args):
-    """Runs the shortwave RRTM code. `args` must be a dictionary containing
-    the keys:
-
-    ['nstr', 'solvar', 'semis', 'ireflect', 'juldat', 'sza',
-     'tavel', 'pavel', 'tz', 'pz', 'wkl', 'wbrodl']
-
-    Returns a dictionary containing the fluxes and heating rate.
+def run_sw_rrtm(
+        interface_air_temperature, interface_air_pressure, gas_volume_mixing_ratios,
+        mean_air_temperature=None,
+        mean_air_pressure=None,
+        reflection='lambertian',
+        num_streams=2,
+        surface_emissivity=1.0,
+        julian_day=None,
+        solar_scaling_factor=1.0,
+        solar_zenith_angle=0.):
     """
-    args['wkl'] = args['wkl'].T
-    args = [args[k] for k in ['nstr', 'juldat', 'sza', 'solvar',
-                              'ireflect', 'semis',
-                              'tavel', 'pavel', 'tz', 'pz', 'wkl', 'wbrodl']]
+    Runs the shortwave RRTM code.
+
+    Args:
+        interface_air_temperature (1-d array): Air temperature at interface levels in
+            Kelvin, in ascending order.
+        interface_air_pressure (1-d array): Air pressure at interface levels in hPa, in
+            ascending order.
+        gas_volume_mixing_ratios (dict): Dictionary whose keys are strings representing
+            atmospheric gases, and values are 1-D arrays containing volume mixing ratios
+            of those gases at interface levels, in ascending order. Floats may also be
+            used for constant mixing ratio at all levels. Considered gases are
+            'H2O', 'CO2', 'O3', 'N2O', 'CO', 'CH4', and 'O2'. Any gases not included will
+            be set to 0.
+        mean_air_temperature (1-d array, optional): Mass-weighted layer average air
+            temperature in Kelvin, in ascending order. By default will be calculated from
+            interface values assuming linear interpolation.
+        mean_air_pressure (1-d array, optional): Mass-weighted layer average air pressure
+            in hPa, in ascending order. By default will be calculated from interface
+            values assuming linear interpolation.
+        reflection (str, optional): Reflection type. Can be 'lambertian' for Lambertian
+            reflection, or 'specular' for specular reflection (where angle is equal to
+            downwelling angle). Defaults to 'lambertian'.
+        num_streams (int, optional): Number of streams used by the radiation scheme.
+        surface_emissivity (float, optional): Surface Emissivity. 0.0 corresponds to
+            no longwave emission from the surface. Defaults to 1.0.
+        julian_day (float, optional): Julian day of the year, from 1 to 365. Used only to
+            calculate the Earth-Sun distance. By default, uses an average Earth-Sun
+            distance.
+        solar_scaling_factor (float, optional): Factor by which to rescale the solar
+            source. Defaults to 1.0.
+        solar_zenith_angle (float, optional): Solar zenith angle in degrees. Defaults to
+            0 degrees (overhead).
+
+    Returns:
+        output (dict): A dictionary containing the solar fluxes and radiative heating
+            rate.
+    """
+    if mean_air_temperature is None:
+        mean_air_temperature = mean_air_temperature_from_interfaces(
+            interface_air_temperature, interface_air_pressure)
+    if mean_air_pressure is None:
+        mean_air_pressure = mean_air_pressure_from_interfaces(interface_air_pressure)
+    if julian_day is None:
+        julian_day = 0.  # default understood by wrapped code
+
+    ireflect = {'lambertian': 0, 'specular': 1}[reflection.lower()]
+    wkl, wbrodl = get_wkl_wbrodl(
+        mean_air_temperature, interface_air_pressure, mean_air_pressure,
+        gas_volume_mixing_ratios)
     try:
-        totuflux, totdflux, fnet, htr = librrtm_sw_wrapper.run_rrtm_sw(*args)
+        return_values = librrtm_sw_wrapper.run_rrtm_sw(
+            num_streams, julian_day, solar_zenith_angle, solar_scaling_factor, ireflect,
+            surface_emissivity, mean_air_temperature, mean_air_pressure,
+            interface_air_temperature, interface_air_pressure, wkl, wbrodl)
     except librrtm_sw_wrapper.LibRRTMSWError as e:
         raise RRTMError(e.data)
-    return {'totuflux': totuflux, 'totdflux':totdflux, 'fnet':fnet, 'htr':htr}
+    return {
+        'upward_shortwave_flux': return_values[0],
+        'downward_shortwave_flux': return_values[1],
+        'net_shortwave_flux': return_values[2],
+        'shortwave_heating_rate': return_values[3],
+    }
