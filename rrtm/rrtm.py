@@ -51,25 +51,41 @@ class RRTMError(Exception):
     pass
 
 
-def get_wkl_wbrodl(
-        mean_air_temperature, interface_air_pressure, mean_air_pressure,
-        volume_mixing_ratios):
-    # would be nice to determine what wkl and wbrodl actually are, to put in documentation
-    # also unclear what the axes of wkl need to be.
+def get_species_volume_mixing_ratio_array(volume_mixing_ratios, num_levels):
+    """
+    Takes in a dictionary whose keys are strings indicating gas species and values are
+    1-D (vertical) volume mixing ratio arrays of those gases. Also takes in the number of
+    vertical levels. Returns a single 2-D array whose first axis is the vertical axis and
+    second axis is species. This array is the wkl array required by the RRTM code.
+    """
     gas_names = ('h2o', 'co2', 'o3', 'n2o', 'co', 'ch4', 'o2')
-    wkl = np.zeros((len(gas_names), len(mean_air_temperature)))
+    return_array = np.zeros((num_levels, len(gas_names)))
     for i, name in enumerate(gas_names):
         if name in volume_mixing_ratios:
-            wkl[i, :] = volume_mixing_ratios[name]
+            return_array[:, i] = volume_mixing_ratios[name]
+    return return_array
+
+
+def get_broadening_volume_mixing_ratio_array(
+        species_volume_mixing_ratio_array, mean_air_temperature, interface_air_pressure,
+        mean_air_pressure):
+    """
+    Takes in a 2-D species volume mixing ratio array (as from
+    get_species_volume_mixing_ratio_array), and 1-D arrays for mass mean air temperature,
+    interface air pressure, and mass-mean air pressure. Returns the 1-D (height) array
+    for volume mixing ratio of broadening gases. This is the wbroadl array required by
+    the RRTM code.
+    """
     coldry = chemistry.column_density_rrtm(
         mean_air_temperature, interface_air_pressure, mean_air_pressure)
+    wkl = species_volume_mixing_ratio_array
     if (wkl < 1.).all():
-        wbrodl = coldry * (1 - wkl[1:, :].sum(0))
+        return_array = coldry * (1 - wkl[1:, :].sum(0))
     elif (wkl > 1.).all():
-        wbrodl = coldry - wkl[1:, :].sum(0)
+        return_array = coldry - wkl[1:, :].sum(0)
     else:
         raise ValueError("WKL units issue detected.")
-    return wkl.T, wbrodl
+    return return_array
 
 
 def run_lw_rrtm(
@@ -126,19 +142,23 @@ def run_lw_rrtm(
     if surface_temperature is None:
         surface_temperature = interface_air_temperature[0]
     for name, value in gas_volume_mixing_ratios.items():
-	gas_volume_mixing_ratios[name.lower()] = value
+    gas_volume_mixing_ratios[name.lower()] = value
 
     ireflect = {'lambertian': 0, 'specular': 1}[reflection.lower()]
     iscat = {'none': 0, 'disort': 1, 'yes': 2}[scattering.lower()]
     numangs = {'none': num_angles, 'disort': num_streams, 'yes': num_streams}[scattering.lower()]
-    wkl, wbrodl = get_wkl_wbrodl(
-        mean_air_temperature, interface_air_pressure, mean_air_pressure,
-        gas_volume_mixing_ratios)
+    species_volume_mixing_ratio_array = get_species_volume_mixing_ratio_array(
+        gas_volume_mixing_ratios, len(mean_air_pressure))
+    broadening_volume_mixing_ratio_array = get_broadening_volume_mixing_ratio_array(
+        species_volume_mixing_ratio_array, mean_air_temperature, interface_air_pressure,
+        mean_air_pressure)
 
     try:
         return_values = librrtm_lw_wrapper.run_rrtm(
-            iscat, numangs, surface_temperature, ireflect, surface_emissivity, mean_air_temperature,
-            mean_air_pressure, interface_air_temperature, interface_air_pressure, wkl, wbrodl)
+            iscat, numangs, surface_temperature, ireflect, surface_emissivity,
+            mean_air_temperature, mean_air_pressure, interface_air_temperature,
+            interface_air_pressure, species_volume_mixing_ratio_array,
+            broadening_volume_mixing_ratio_array)
     except librrtm_lw_wrapper.LibRRTMError as e:
         raise RRTMError(e.data)
     return {
