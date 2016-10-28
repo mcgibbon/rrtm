@@ -5,7 +5,7 @@ import scipy.io.netcdf
 
 
 def get_test_data():
-    nc = scipy.io.netcdf.netcdf_file('tests_data.nc', 'r')
+    nc = scipy.io.netcdf.netcdf_file('tests/tests_data.nc', 'r')
     input_data = {
         'mean_air_pressure': nc.variables['pavel'][:].copy(),
         'mean_air_temperature': nc.variables['tavel'][:].copy(),
@@ -21,10 +21,8 @@ def get_test_data():
             'o2': nc.variables['o2'][:].copy(),
         }
     }
-    nc.close()
-    nc = scipy.io.netcdf.netcdf_file('tests_data.nc', 'r')
     output_data = {
-        name: nc.variables[name][:].copy() for name in (
+        'htr_' + name: nc.variables['htr_' + name][:].copy() for name in (
             'lw', 'lw_disort', 'lw_auto_pz', 'sw')
     }
     nc.close()

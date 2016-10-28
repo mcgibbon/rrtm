@@ -77,7 +77,7 @@ clean :
 	rm $(PYMOD_BPATH)/$(LW_SO_BASE).so $(PYMOD_BPATH)/$(SW_SO_BASE).so
 
 test : $(PYMOD_BPATH)
-	cd tests; python test_pyrrtm.py
+	cd tests; python test_rrtm.py
 
 #pymodule_netcdf : cli_netcdf $(PYMOD_SRCS) version
 #	rm -rf $(PYMOD_BPATH)
