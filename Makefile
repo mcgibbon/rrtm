@@ -50,8 +50,9 @@ LFLAGS = -lm -lgfortran
 
 ## Python module
 
-PYMOD_NAME = pyrrtm
-PYMOD_BPATH = $(BPATH)/$(PYMOD_NAME)
+PYMOD_NAME = rrtm
+PYMOD_BPATH = $(PYMOD_NAME)
+##PYMOD_BPATH = $(BPATH)/$(PYMOD_NAME)
 PYMOD_SRCS = $(wildcard python/*.py)
 
 ## Python .so libraries
@@ -67,12 +68,13 @@ PYX_CFLAGS = -fPIC -pthread -fwrapv -fno-strict-aliasing $(shell python-config -
 
 ######################
 
-.PHONY : cli_netcdf clean pymodule_netcdf pymodule_native test
+.PHONY : clean build test install
 
 cli_netcdf : | $(LW_BPATH) $(SW_BPATH) $(LW_OUTPUT) $(SW_OUTPUT)
 
 clean :
 	rm -rf $(BPATH)
+	rm $(PYMOD_BPATH)/$(LW_SO_BASE).so $(PYMOD_BPATH)/$(SW_SO_BASE).so
 
 test : $(PYMOD_BPATH)
 	cd tests; python test_pyrrtm.py
@@ -83,14 +85,11 @@ test : $(PYMOD_BPATH)
 #	cp $(LW_OUTPUT) $(SW_OUTPUT) $(PYMOD_SRCS) version $(PYMOD_BPATH)/.
 #	echo "has_native = False" > $(PYMOD_BPATH)/has_native.py
 
-pymodule_native : $(LW_BPATH) $(SW_BPATH) $(LW_SO) $(SW_SO) $(PYMOD_SRCS) version
-	rm -rf $(PYMOD_BPATH)
+build : $(LW_BPATH) $(SW_BPATH) $(LW_SO) $(SW_SO) $(PYMOD_SRCS) version
 	mkdir -p $(PYMOD_BPATH)
-	cp $(LW_SO) $(SW_SO) $(PYMOD_SRCS) version \
-	   $(PYMOD_BPATH)/.
-	echo "has_native = True" > $(PYMOD_BPATH)/has_native.py
+	cp $(LW_SO) $(SW_SO) $(PYMOD_BPATH)/.
 
-pymodule_install : $(PYMOD_BPATH)
+install : $(PYMOD_BPATH)
 	rm -rf $(shell python -c "from distutils.sysconfig import get_python_lib; print(get_python_lib())")/$(PYMOD_NAME)
 	cp -rf $(PYMOD_BPATH) $(shell python -c "from distutils.sysconfig import get_python_lib; print(get_python_lib())")/$(PYMOD_NAME)
 
